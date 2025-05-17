@@ -185,6 +185,37 @@ Berikut adalah cuplikan data produksi tahunan lima komoditas utama di Indonesia 
 | 1964 | Indonesia | 3,768,600                  | 9,371,189                  | 48.41                            | 35,000                           | 25,002                        |
 | 1965 | Indonesia | 2,364,500                  | 9,655,017                  | 48.48                            | 35,000                           | 27,202                        |
 
+### Checking Outliers
+
+Proses ini menggunakan visualisasi boxplot untuk mengidentifikasi outlier pada lima komoditas utama. Boxplot membantu melihat sebaran data, median, kuartil, dan titik-titik ekstrem yang dianggap sebagai outlier berdasarkan rentang interkuartil.
+
+```python
+commodities = [
+    'Maize Production (tonnes)',
+    'Rice  Production ( tonnes)',
+    'Coffee, green Production ( tonnes)',
+    'Cocoa beans Production (tonnes)',
+    'Palm oil  Production (tonnes)'
+]
+
+plt.figure(figsize=(12, 6))
+
+for i, commodity in enumerate(commodities):
+    plt.subplot(2, 3, i+1)
+    sns.boxplot(x=df[commodity], color='red')
+    plt.title(commodity)
+
+plt.tight_layout()
+plt.show()
+```
+
+Hasilnya seperti gambar berikut:
+![Checking Outliers](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Checking-Outliers.png?raw=true)
+
+---
+
+## Data Preparation
+
 ### Feature Renaming for Simplicity
 
 Nama kolom pada dataset mengandung format yang tidak konsisten, seperti spasi berlebih dan anotasi satuan (contoh: " (tonnes)" atau " ( tonnes)"), yang perlu dibersihkan untuk menghindari kesalahan kunci dalam pemrosesan selanjutnya.
@@ -212,32 +243,6 @@ Hasilnya:
 | 1964 | Indonesia | 3,768,600        | 9,371,189        | 48.41                    | 35,000                   | 25,002               |
 | 1965 | Indonesia | 2,364,500        | 9,655,017        | 48.48                    | 35,000                   | 27,202               |
 
----
-
-## Data Preparation
-
-### Checking Outliers
-
-Proses ini menggunakan visualisasi boxplot untuk mengidentifikasi outlier pada lima komoditas utama. Boxplot membantu melihat sebaran data, median, kuartil, dan titik-titik ekstrem yang dianggap sebagai outlier berdasarkan rentang interkuartil.
-
-```python
-commodities = ['Maize Production', 'Rice Production', 'Coffee green Production',
-               'Cocoa beans Production', 'Palm oil Production']
-
-plt.figure(figsize=(12, 6))
-
-for i, commodity in enumerate(commodities):
-    plt.subplot(2, 3, i+1)
-    sns.boxplot(x=df_filtered[commodity], color='red')
-    plt.title(commodity)
-
-plt.tight_layout()
-plt.show()
-```
-
-Hasilnya seperti gambar berikut:
-![Checking Outliers](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Checking-Outliers.png)
-
 ### Handling Outliers
 
 Data produksi pertanian sering kali mengandung nilai ekstrem dan pola pertumbuhan non-linear. Alih-alih menghapus outlier, proyek ini menggunakan **transformasi logaritmik (`log1p`)** untuk menstabilkan variansi namun tetap mempertahankan semua data:
@@ -245,21 +250,22 @@ Data produksi pertanian sering kali mengandung nilai ekstrem dan pola pertumbuha
 ```python
 df_transformed = df_filtered.copy()
 
+commodities = [
+    'Maize Production',
+    'Rice Production',
+    'Coffee green Production',
+    'Cocoa beans Production',
+    'Palm oil Production'
+]
+
 for col in commodities:
     df_transformed[col] = np.log1p(df_transformed[col])
 
-plt.figure(figsize=(12, 6))
-
-for i, commodity in enumerate(commodities):
-    plt.subplot(2, 3, i+1)
-    sns.boxplot(x=df_transformed[commodity], color='red')
-    plt.title(commodity)
-
-plt.tight_layout()
+df_transformed.head()
 ```
 
 Hasilnya ditunjukkan dalam gambar berikut:
-![Handling Outliers](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Handling-Outliers.png)
+![Handling Outliers](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Handling-Outliers.png?raw=true)
 
 ### Data Normalization
 
@@ -461,84 +467,86 @@ rmse = mse ** 0.5
 
 ### Performa Model
 
-| Country – Commodity                       | MSE       | RMSE     |
-|-------------------------------------------|-----------|----------|
-| Indonesia - Maize Production              | 0.050252  | 0.224171 |
-| Indonesia - Rice Production               | 0.263076  | 0.512909 |
-| Indonesia - Coffee green Production       | 0.205936  | 0.453801 |
-| Indonesia - Cocoa beans Production        | 0.507351  | 0.712286 |
-| Indonesia - Palm oil Production           | 0.649066  | 0.805646 |
-| Vietnam - Maize Production                | 0.066647  | 0.258160 |
-| Vietnam - Rice Production                 | 0.025524  | 0.159763 |
-| Vietnam - Coffee green Production         | 6.988265  | 2.643533 |
-| Vietnam - Cocoa beans Production          | 1.423242  | 1.192997 |
-| Vietnam - Palm oil Production             | 7.717517  | 2.778042 |
-| Thailand - Maize Production               | 0.083865  | 0.289595 |
-| Thailand - Rice Production                | 1.928680  | 1.388769 |
-| Thailand - Coffee green Production        | 1.193851  | 1.092635 |
-| Thailand - Cocoa beans Production         | 0.806272  | 0.897926 |
-| Thailand - Palm oil Production            | 0.229946  | 0.479527 |
-| Philippines - Maize Production            | 0.074949  | 0.273768 |
-| Philippines - Rice Production             | 7.849365  | 2.801672 |
-| Philippines - Coffee green Production     | 2.776699  | 1.666343 |
-| Philippines - Cocoa beans Production      | 4.253852  | 2.062487 |
-| Philippines - Palm oil Production         | 1.547647  | 1.244044 |
-| Malaysia - Maize Production               | 0.271657  | 0.521207 |
-| Malaysia - Rice Production                | 0.066827  | 0.258509 |
-| Malaysia - Coffee green Production        | 1.037524  | 1.018589 |
-| Malaysia - Cocoa beans Production         | 7.988416  | 2.826379 |
-| Malaysia - Palm oil Production            | 2.874464  | 1.695424 |
+Tabel berikut menampilkan nilai **MSE** dan **RMSE** untuk setiap kombinasi negara dan komoditas berdasarkan hasil evaluasi model LSTM univariat.
+
+| Country – Commodity                      | MSE       | RMSE     |
+|------------------------------------------|-----------|----------|
+| Indonesia - Maize Production             | 0.043274  | 0.208023 |
+| Indonesia - Rice Production              | 0.070069  | 0.264706 |
+| Indonesia - Coffee green Production      | 0.065443  | 0.255818 |
+| Indonesia - Cocoa beans Production       | 1.028181  | 1.013993 |
+| Indonesia - Palm oil Production          | 0.467928  | 0.684052 |
+| Vietnam - Maize Production               | 0.006084  | 0.078003 |
+| Vietnam - Rice Production                | 0.039638  | 0.199093 |
+| Vietnam - Coffee green Production        | 7.097098  | 2.664038 |
+| Vietnam - Cocoa beans Production         | 1.139787  | 1.067608 |
+| Vietnam - Palm oil Production            | 7.804762  | 2.793700 |
+| Thailand - Maize Production              | 0.005047  | 0.071042 |
+| Thailand - Rice Production               | 1.949327  | 1.396183 |
+| Thailand - Coffee green Production       | 1.123807  | 1.060097 |
+| Thailand - Cocoa beans Production        | 0.369230  | 0.607643 |
+| Thailand - Palm oil Production           | 0.055478  | 0.235537 |
+| Philippines - Maize Production           | 0.001285  | 0.035847 |
+| Philippines - Rice Production            | 8.377754  | 2.894435 |
+| Philippines - Coffee green Production    | 2.823268  | 1.680258 |
+| Philippines - Cocoa beans Production     | 3.738368  | 1.933486 |
+| Philippines - Palm oil Production        | 0.854754  | 0.924529 |
+| Malaysia - Maize Production              | 0.401907  | 0.633961 |
+| Malaysia - Rice Production               | 0.094173  | 0.306876 |
+| Malaysia - Coffee green Production       | 2.983603  | 1.727311 |
+| Malaysia - Cocoa beans Production        | 7.025335  | 2.650535 |
+| Malaysia - Palm oil Production           | 2.682450  | 1.637819 |
 
 **Insight**
 
-* 🇮🇩 **Indonesia** menunjukkan performa prediksi yang baik secara keseluruhan. Produksi jagung (**RMSE = 0.224**) dan beras (**0.513**) termasuk dalam kategori akurat. Meskipun performa prediksi untuk kopi, kakao, dan minyak sawit masih memiliki error sedang hingga tinggi, model cukup mampu menangkap tren produksinya.
+* 🇮🇩 **Indonesia** menunjukkan performa prediksi yang cukup stabil. Model memiliki akurasi yang baik untuk jagung (**RMSE = 0.208**) dan beras (**0.265**). Prediksi untuk kopi juga masih dapat diterima (**0.256**). Namun, performa untuk kakao (**1.014**) dan minyak sawit (**0.684**) menunjukkan adanya tantangan dalam menangkap pola tren pada komoditas tersebut.
 
-* 🇻🇳 **Vietnam** memiliki performa sangat baik untuk beras (**RMSE = 0.160**) dan jagung (**0.258**), namun performa prediksi untuk kopi (**RMSE = 2.644**) dan minyak sawit (**2.778**) sangat buruk. Ini mengindikasikan data historis produksi yang sangat fluktuatif untuk dua komoditas terakhir tersebut.
+* 🇻🇳 **Vietnam** menunjukkan prediksi sangat akurat untuk jagung (**RMSE = 0.078**) dan beras (**0.199**), menandakan pola historis yang konsisten. Namun, performa sangat buruk pada kopi (**2.664**) dan minyak sawit (**2.794**) yang mengindikasikan fluktuasi ekstrem atau anomali dalam data historis komoditas tersebut.
 
-* 🇹🇭 **Thailand** memperlihatkan performa yang bervariasi. Jagung (**RMSE = 0.290**) dan kelapa sawit (**0.480**) cukup akurat. Namun, tingkat error yang lebih tinggi terdapat pada prediksi beras (**1.389**) dan kopi (**1.093**), yang mungkin disebabkan oleh fluktuasi musiman atau ketidakteraturan data.
+* 🇹🇭 **Thailand** mencatat performa prediksi terbaik untuk jagung (**RMSE = 0.071**) dan kelapa sawit (**0.236**). Model juga cukup baik dalam memprediksi kakao (**0.608**), namun menunjukkan kesulitan untuk beras (**1.396**) dan kopi (**1.060**), kemungkinan besar karena ketidakstabilan musiman atau variasi antar tahun yang tinggi.
 
-* 🇵🇭 **Filipina** mengalami kesulitan pada prediksi beras (**RMSE = 2.802**) dan kakao (**2.062**), yang menunjukkan ketidakstabilan pola produksi. Sementara itu, prediksi untuk jagung (**0.274**) tergolong akurat, memberikan indikasi bahwa tidak semua komoditas sulit diprediksi.
+* 🇵🇭 **Filipina** memiliki performa sangat akurat untuk jagung (**RMSE = 0.036**), tetapi sangat rendah untuk beras (**2.894**) dan kakao (**1.933**). Ini mencerminkan adanya ketidakteraturan atau gangguan dalam data produksi tahunan komoditas tersebut. Komoditas lain seperti kopi (**1.680**) dan kelapa sawit (**0.925**) juga menunjukkan kesulitan moderat dalam prediksi.
 
-* 🇲🇾 **Malaysia** memiliki akurasi prediksi yang cukup baik untuk beras (**RMSE = 0.259**) dan jagung (**0.521**), namun performa menurun drastis untuk kakao (**2.826**) dan minyak sawit (**1.695**). Hal ini menunjukkan bahwa beberapa komoditas di Malaysia memiliki pola produksi yang tidak konsisten atau terdapat noise signifikan dalam datanya.
+* 🇲🇾 **Malaysia** mencatat akurasi tinggi pada beras (**RMSE = 0.307**) dan cukup baik untuk jagung (**0.634**). Namun, model kesulitan dalam memprediksi kopi (**1.727**), kakao (**2.651**), dan minyak sawit (**1.638**), yang menunjukkan bahwa tren historis produksi di komoditas tersebut lebih sulit untuk dipelajari oleh model.
 
 ### Visual Evaluation
 
 Visualisasi dilakukan untuk membandingkan prediksi model terhadap data aktual pada periode pelatihan dan pengujian. Data produksi dikembalikan ke skala aslinya menggunakan inverse_transform sebelum divisualisasikan. Setiap grafik menunjukkan tren tahunan produksi komoditas dengan garis prediksi dan aktual untuk masing-masing negara dan komoditas, yang terbagi dalam dua subplot: pelatihan dan pengujian.
 
 Indonesia's Model Evaluation:
-![Indonesia - Maize Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Indonesia-Maize-Evaluation.png)
-![Indonesia - Rice Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Indonesia-Rice-Evaluation.png)
-![Indonesia - Coffee Green Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Indonesia-Coffee-green-Evaluation.png)
-![Indonesia - Cocoa Beans Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Indonesia-Cocoa-beans-Evaluation.png)
-![Indonesia - Palm Oil Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Indonesia-Palm-oil-Evaluation.png)
+![Indonesia - Maize Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Indonesia-Maize-Evaluation.png?raw=true)
+![Indonesia - Rice Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Indonesia-Rice-Evaluation.png?raw=true)
+![Indonesia - Coffee Green Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Indonesia-Coffee-green-Evaluation.png?raw=true)
+![Indonesia - Cocoa Beans Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Indonesia-Cocoa-beans-Evaluation.png?raw=true)
+![Indonesia - Palm Oil Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Indonesia-Palm-oil-Evaluation.png?raw=true)
 
 Vietnam's Model Evaluation:
-![Vietnam - Maize Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Vietnam-Maize-Evaluation.png)
-![Vietnam - Rice Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Vietnam-Rice-Evaluation.png)
-![Vietnam - Coffee Green Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Vietnam-Coffee-green-Evaluation.png)
-![Vietnam - Cocoa Beans Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Vietnam-Coffee-beans-Evaluation.png)
-![Vietnam - Palm Oil Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Vietnam-Palm-oil-Evaluation.png)
+![Vietnam - Maize Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Vietnam-Maize-Evaluation.png?raw=true)
+![Vietnam - Rice Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Vietnam-Rice-Evaluation.png?raw=true)
+![Vietnam - Coffee Green Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Vietnam-Coffee-green-Evaluation.png?raw=true)
+![Vietnam - Cocoa Beans Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Vietnam-Cocoa-beans-Evaluation.png?raw=true)
+![Vietnam - Palm Oil Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Vietnam-Palm-oil-Evaluation.png?raw=true)
 
 Thailand's Model Evaluation:
-![Thailand - Maize Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Thailand-Maize-Evaluation.png)
-![Thailand - Rice Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Thailand-Rice-Evaluation.png)
-![Thailand - Coffee Green Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Thailand-Coffee-green-Evaluation.png)
-![Thailand - Cocoa Beans Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Thailand-Cocoa-beans-Evaluation.png)
-![Thailand - Palm Oil Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Thailand-Palm-oil-Evaluation.png)
+![Thailand - Maize Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Thailand-Maize-Evaluation.png?raw=true)
+![Thailand - Rice Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Thailand-Rice-Evaluation.png?raw=true)
+![Thailand - Coffee Green Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Thailand-Coffee-green-Evaluation.png?raw=true)
+![Thailand - Cocoa Beans Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Thailand-Cocoa-beans-Evaluation.png?raw=true)
+![Thailand - Palm Oil Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Thailand-Palm-oil-Evaluation.png?raw=true)
 
 Philippines Model Evaluation:
-![Philippines - Maize Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Philippines-Maize-Evaluation.png)
-![Philippines - Rice Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Philippines-Rice-Evaluation.png)
-![Philippines - Coffee Green Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Philippines-Coffee-green-Evaluation.png)
-![Philippines - Cocoa Beans Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Philippines-Cocoa-beans-Evaluation.png)
-![Philippines - Palm Oil Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Philippines-Palm-oil-Evaluation.png)
+![Philippines - Maize Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Philippines-Maize-Evaluation.png?raw=true)
+![Philippines - Rice Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Philippines-Rice-Evaluation.png?raw=true)
+![Philippines - Coffee Green Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Philippines-Coffee-green-Evaluation.png?raw=true)
+![Philippines - Cocoa Beans Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Philippines-Cocoa-beans-Evaluation.png?raw=true)
+![Philippines - Palm Oil Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Philippines-Palm-oil-Evaluation.png?raw=true)
 
 Malaysia's Model Evaluation:
-![Malaysia - Maize Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Malaysia-Maize-Evaluation.png)
-![Malaysia - Rice Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Malaysia-Rice-Evaluation.png)
-![Malaysia - Coffee Green Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Malaysia-Coffee-green-Evaluation.png)
-![Malaysia - Cocoa Beans Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Malaysia-Cocoa-beans-Evaluation.png)
-![Malaysia - Palm Oil Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Malaysia-Palm-oil-Evaluation-Palm-oil-Evaluation.png)
+![Malaysia - Maize Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Malaysia-Maize-Evaluation.png?raw=true)
+![Malaysia - Rice Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Malaysia-Rice-Evaluation.png?raw=true)
+![Malaysia - Coffee Green Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Malaysia-Coffee-green-Evaluation.png?raw=true)
+![Malaysia - Cocoa Beans Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Malaysia-Cocoa-beans-Evaluation.png?raw=true)
+![Malaysia - Palm Oil Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Malaysia-Palm-oil-Evaluation.png?raw=true)
 
 ### Forecasting Results
 
@@ -576,17 +584,17 @@ Berikut adalah tabel prediksi produksi tahun 2030 berdasarkan hasil model LSTM:
 
 Grafik ini membandingkan hasil prediksi produksi tahun 2030 untuk lima komoditas utama di lima negara ASEAN. Visualisasi menggunakan grouped bar chart untuk memperlihatkan performa masing-masing negara dalam setiap komoditas.
 
-![Forecasted Production in 2030](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Barchart-Prediction-2030.png)
+![Forecasted Production in 2030](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Barchart-Prediction-2030.png?raw=true)
 
 #### Forecast Comparison (Until 2030)
 
 Melakukan prediksi produksi komoditas hingga tahun 2030 untuk setiap kombinasi negara dan komoditas yang tersedia. Model LSTM yang telah dilatih digunakan untuk menghasilkan prediksi berdasarkan 5 data terakhir dari gabungan data pelatihan dan pengujian. Output prediksi disimpan dalam struktur forecast_by_commodity dan divisualisasikan dalam bentuk grafik per komoditas untuk membandingkan tren antar negara.
 
-![Forecast - Maize Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Forecast-Maize-Until-2030.png)
-![Forecast - Rice Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Forecast-Rice-Until-2030.png)
-![Forecast - Coffee Green Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Forecast-Coffee-green-Until-2030.png)
-![Forecast - Cocoa Beans Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Forecast-Cocoa-beans-Until-2030.png)
-![Forecast - Palm Oil Production](https://github.com/codedreamerD/MLT1/blob/main/repo-dir/Forecast-Palm-oil-Until-2030.png)
+![Forecast - Maize Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Forecast-Maize-Until-2030.png?raw=true)
+![Forecast - Rice Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Forecast-Rice-Until-2030.png?raw=true)
+![Forecast - Coffee Green Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Forecast-Coffee-green-Until-2030.png?raw=true)
+![Forecast - Cocoa Beans Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Forecast-Cocoa-beans-Until-2030.png?raw=true)
+![Forecast - Palm Oil Production](https://github.com/codedreamerD/MLT1_Pred/blob/main/repo-dir/Forecast-Palm-oil-Until-2030.png?raw=true)
 
 ---
 
@@ -597,43 +605,60 @@ Melakukan prediksi produksi komoditas hingga tahun 2030 untuk setiap kombinasi n
 **Masalah 1:**
 *Tren historis produksi pertanian di negara-negara ASEAN sangat fluktuatif. Tanpa peramalan yang akurat, pemerintah dan pemangku kepentingan di sektor pertanian kesulitan dalam merumuskan strategi pangan dan perdagangan jangka panjang.*
 
-* Terjawab.
-  Model LSTM univariat yang dikembangkan berhasil mempelajari pola musiman dan non-linear dalam data produksi tahunan dari lima negara ASEAN untuk lima komoditas utama. Hasil evaluasi menggunakan RMSE menunjukkan bahwa model mampu memberikan prediksi yang cukup akurat untuk beberapa negara dan komoditas, seperti beras di Vietnam (RMSE = 0.159) dan jagung di Indonesia (RMSE = 0.224).
+* **Terjawab.**
+  Model LSTM univariat yang dibangun mampu menangkap tren tahunan yang bersifat musiman dan non-linier dari 25 kombinasi negara dan komoditas. Hasil evaluasi menggunakan RMSE menunjukkan performa yang baik untuk beberapa komoditas seperti:
+
+  * Maize di Filipina (**RMSE = 0.035**)
+  * Rice di Vietnam (**RMSE = 0.199**)
+  * Palm oil di Thailand (**RMSE = 0.236**)
 
 **Masalah 2:**
 *Belum tersedia standar perbandingan proyeksi produksi yang membandingkan posisi Indonesia dengan negara produsen utama ASEAN lainnya.*
 
-* Terjawab.
-  Proyek ini membangun total 25 model prediksi untuk setiap kombinasi negara dan komoditas, yang memungkinkan dilakukan perbandingan lintas negara secara kuantitatif menggunakan hasil prediksi produksi tahun 2030 dan nilai evaluasi RMSE/MSE. Hal ini memberikan wawasan mengenai posisi kompetitif Indonesia dalam produksi beras, jagung, dan komoditas lainnya.
+* **Terjawab.**
+  Dataset telah dibagi dan diprediksi untuk masing-masing kombinasi negara dan komoditas, menghasilkan prediksi tahun 2030 yang memungkinkan:
+
+  * Perbandingan kuantitatif antar negara berdasarkan **RMSE**
+  * Perbandingan **volume produksi 2030** yang divisualisasikan dengan grafik bar dan tabel
+  * Evaluasi daya saing Indonesia yang unggul dalam **rice** dan **maize**, sedangkan Vietnam unggul di **cocoa beans**
 
 **Masalah 3:**
 *Teknik peramalan tradisional (misalnya statistik dasar atau regresi linier) sering kali gagal menangkap pola musiman dan non-linier dalam data deret waktu produksi pertanian jangka panjang.*
 
-* Terjawab.
-  LSTM sebagai model berbasis Recurrent Neural Network mampu mengatasi keterbatasan teknik tradisional. Ini dibuktikan dengan performa model pada kombinasi tertentu seperti kopi hijau Thailand (RMSE = 1.09) dan minyak sawit Filipina (RMSE = 1.24), di mana model masih dapat mengikuti tren meski data historis cukup fluktuatif.
+* **Terjawab.**
+  Penggunaan LSTM yang dapat menangani urutan data panjang serta pola fluktuatif terbukti efektif. Contohnya:
+
+  * Cocoa beans Vietnam (RMSE = 1.068) tetap berhasil diprediksi meskipun datanya sangat berfluktuasi
+  * Komoditas seperti rice Indonesia (**RMSE = 0.265**) menunjukkan hasil yang stabil dan realistis untuk prediksi jangka panjang
+
+---
 
 ### Apakah model berhasil mencapai goals?
 
 **Tujuan 1:**
-Model LSTM berhasil dibangun dan dilatih dengan data historis dari tahun 1961 hingga 2021, dan digunakan untuk memprediksi tren produksi lima komoditas di lima negara ASEAN hingga tahun 2030.
+Model berhasil dibangun dan dilatih dengan data historis produksi tahunan dari 1961 hingga 2021 untuk seluruh kombinasi negara dan komoditas. Selanjutnya, model digunakan untuk memprediksi produksi hingga tahun 2030 secara **recursive**.
 
 **Tujuan 2:**
-Perbandingan antar negara dan komoditas berhasil dilakukan melalui hasil evaluasi numerik (RMSE, MSE) serta prediksi 2030 yang disusun dalam tabel. Ini memungkinkan analisis daya saing antar negara seperti keunggulan Indonesia dalam produksi beras dan jagung, serta dominasi Vietnam dalam kakao.
+Hasil prediksi produksi tahun 2030 tersedia dalam bentuk tabel dan grafik bar, memungkinkan perbandingan antar negara dan komoditas. Daya saing Indonesia, Vietnam, dan negara ASEAN lainnya dapat dievaluasi secara kuantitatif dan visual.
 
 **Tujuan 3:**
-Model LSTM terbukti mampu menangkap pola musiman dan non-linier dalam data deret waktu pertanian. Hal ini menjadikan model ini lebih unggul dibanding model statistik konvensional, terutama pada data dengan fluktuasi tinggi seperti produksi kopi dan minyak sawit.
+Model LSTM berhasil menangkap tren data non-linier yang kompleks. Hal ini menunjukkan keunggulan signifikan dibanding metode statistik biasa seperti regresi linier atau moving average.
+
+---
 
 ### Apakah solusi yang direncanakan berdampak?
 
 **Solusi 1:**
-Model LSTM univariat menunjukkan efektivitasnya dalam memprediksi tren berdasarkan data tahunan. Model memberikan hasil yang baik pada pola konsisten (misalnya beras Indonesia) dan mampu beradaptasi dengan pola fluktuatif (misalnya kakao Vietnam).
+Model univariat LSTM menunjukkan performa optimal pada kombinasi data yang stabil maupun fluktuatif. Hal ini memvalidasi bahwa solusi berbasis deep learning cocok untuk konteks produksi pertanian tahunan.
 
 **Solusi 2:**
-Visualisasi hasil prediksi serta evaluasi numerik berhasil memberikan gambaran yang jelas tentang posisi Indonesia dibanding negara ASEAN lain. Misalnya, Indonesia diproyeksikan memimpin produksi beras pada 2030, sedangkan Vietnam unggul dalam kakao.
+Prediksi akhir dan visualisasi grafik bar memberi wawasan strategis untuk setiap negara dalam mengambil keputusan terkait produksi, perdagangan, dan ketahanan pangan berbasis komoditas.
+
+---
 
 ### Kesimpulan
 
-Evaluasi menunjukkan bahwa model LSTM univariat yang dibangun efektif dalam memprediksi tren produksi pangan di ASEAN. Seluruh pernyataan masalah berhasil dijawab, tujuan tercapai, dan solusi yang diusulkan memberikan dampak nyata. Proyek ini berpotensi menjadi alat bantu penting bagi perumusan kebijakan pangan dan perencanaan produksi jangka panjang di kawasan Asia Tenggara.
+Model LSTM univariat yang dikembangkan dalam proyek ini terbukti efektif dan menjawab seluruh pernyataan masalah yang diajukan. Semua tujuan berhasil dicapai, dan solusi yang diterapkan berdampak langsung terhadap penyediaan alat bantu perencanaan strategis produksi pertanian jangka panjang di kawasan ASEAN. Proyek ini dapat menjadi referensi kuat untuk pemerintah, peneliti, dan pelaku industri pangan dalam menyusun kebijakan dan strategi berbasis data.
 
 ---
 
